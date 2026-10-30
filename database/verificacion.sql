@@ -62,8 +62,27 @@ BEGIN
 END $$;
 
 -- Resumen para el log del pipeline.
-SELECT 'usuario' AS tabla, count(*) AS registros FROM usuario
-UNION ALL SELECT 'proyectos', count(*) FROM proyectos
-UNION ALL SELECT 'tareas', count(*) FROM tareas
-UNION ALL SELECT 'comentarios', count(*) FROM comentarios
-UNION ALL SELECT 'asignaciones', count(*) FROM asignaciones;
+SELECT
+    'usuario' AS tabla,
+    count(*) AS registros
+FROM usuario
+UNION ALL
+SELECT
+    'proyectos' AS tabla,
+    count(*) AS registros
+FROM proyectos
+UNION ALL
+SELECT
+    'tareas' AS tabla,
+    count(*) AS registros
+FROM tareas
+UNION ALL
+SELECT
+    'comentarios' AS tabla,
+    count(*) AS registros
+FROM comentarios
+UNION ALL
+SELECT
+    'asignaciones' AS tabla,
+    count(*) AS registros
+FROM asignaciones;
