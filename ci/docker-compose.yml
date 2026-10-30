@@ -1,6 +1,6 @@
 # Infraestructura de CI del Gestor de Proyectos.
 # Jenkins (JDK 21) reutiliza el volumen del Jenkins anterior, asi se conservan usuarios, plugins y jobs.
-# SonarQube ya existe como contenedor "sonarqube" en la red jenkins-ci (docker start sonarqube).
+# SonarQube (analisis de codigo) y PostgreSQL con la base dbgestor comparten la red jenkins-ci.
 name: gestor-ci
 
 services:
@@ -13,6 +13,18 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins-ci
+
+  sonarqube:
+    image: sonarqube:26.10.0.133078-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
     networks:
       - jenkins-ci
 
@@ -37,6 +49,9 @@ volumes:
     external: true
     name: d8f760aca2d94f14fc8d2e56b63e9c36c33aa0db78c53537564899b4ede1eb5a
   gestor_db_data:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
 
 networks:
   jenkins-ci:
