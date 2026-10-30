@@ -15,11 +15,16 @@ RUN python3 -m venv /opt/sqlfluff \
 
 # Trivy (escaneo de vulnerabilidades) con version fija y verificacion de checksum.
 ARG TRIVY_VERSION=0.75.0
-RUN cd /tmp \
-    && curl -fsSLO "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+WORKDIR /tmp
+RUN curl -fsSLO "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
     && curl -fsSLO "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_checksums.txt" \
     && grep " trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz$" "trivy_${TRIVY_VERSION}_checksums.txt" | sha256sum -c - \
     && tar -xzf "trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" -C /usr/local/bin trivy \
-    && rm -f /tmp/trivy_*
+    && rm -f trivy_*
+WORKDIR /
 
 USER jenkins
+
+# Docker marca el contenedor como "unhealthy" si Jenkins deja de responder.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=5 \
+    CMD curl -fsS http://localhost:8080/login > /dev/null || exit 1
