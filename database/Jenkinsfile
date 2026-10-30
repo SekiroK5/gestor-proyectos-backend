@@ -1,0 +1,92 @@
+// Pipeline de base de datos: analiza la calidad del SQL, crea una base de prueba desde cero,
+// verifica integridad y comprueba que el esquema coincide con las entidades JPA del backend.
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK21'
+        maven 'Maven 3.9.11'
+    }
+
+    environment {
+        PGHOST = 'gestor-db'
+        PGUSER = 'postgres'
+        PGPASSWORD = 'postgres'
+        BD_PRUEBA = 'dbgestor_ci'
+        TRIVY_CACHE_DIR = '/var/jenkins_home/.cache/trivy'
+    }
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+    }
+
+    stages {
+        stage('Analisis del SQL (sqlfluff)') {
+            steps {
+                dir('database') {
+                    sh 'sqlfluff --version'
+                    sh 'estado=0; sqlfluff lint schema.sql datos.sql verificacion.sql > sqlfluff-reporte.txt || estado=$?; cat sqlfluff-reporte.txt; exit $estado'
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'database/sqlfluff-reporte.txt', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Analisis de configuracion (Trivy)') {
+            steps {
+                sh 'trivy config --format table --output trivy-config.txt ci'
+                sh 'cat trivy-config.txt'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-config.txt', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Crear base de prueba') {
+            steps {
+                sh 'psql -d postgres -v ON_ERROR_STOP=1 -c "DROP DATABASE IF EXISTS $BD_PRUEBA" -c "CREATE DATABASE $BD_PRUEBA"'
+            }
+        }
+
+        stage('Aplicar esquema y datos') {
+            steps {
+                sh 'psql -d $BD_PRUEBA -v ON_ERROR_STOP=1 -f database/schema.sql -f database/datos.sql'
+            }
+        }
+
+        stage('Verificar integridad') {
+            steps {
+                sh 'psql -d $BD_PRUEBA -v ON_ERROR_STOP=1 -f database/verificacion.sql'
+            }
+        }
+
+        stage('Compatibilidad con el backend') {
+            steps {
+                // Hibernate valida, sin modificar nada, que cada entidad tenga su tabla y columnas en el esquema.
+                withEnv(["DB_URL=jdbc:postgresql://gestor-db:5432/${env.BD_PRUEBA}", 'DB_USER=postgres', 'DB_PASSWORD=postgres',
+                         'SPRING_JPA_HIBERNATE_DDL_AUTO=validate']) {
+                    sh 'mvn -B -ntp -Djacoco.skip=true -Dtest=Ejercicio5MyApiGestorApplicationTests test'
+                }
+            }
+        }
+
+        stage('Respaldo') {
+            steps {
+                sh 'pg_dump -d $BD_PRUEBA --no-owner --no-privileges -f respaldo-$BD_PRUEBA.sql'
+                archiveArtifacts artifacts: 'respaldo-*.sql', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'psql -d postgres -c "DROP DATABASE IF EXISTS $BD_PRUEBA" || true'
+        }
+    }
+}

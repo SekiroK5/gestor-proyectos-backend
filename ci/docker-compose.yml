@@ -1,0 +1,43 @@
+# Infraestructura de CI del Gestor de Proyectos.
+# Jenkins (JDK 21) reutiliza el volumen del Jenkins anterior, asi se conservan usuarios, plugins y jobs.
+# SonarQube ya existe como contenedor "sonarqube" en la red jenkins-ci (docker start sonarqube).
+name: gestor-ci
+
+services:
+  jenkins:
+    build: ./jenkins
+    image: gestor-jenkins:jdk21
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins-ci
+
+  gestor-db:
+    image: postgres:16
+    container_name: gestor-db
+    environment:
+      POSTGRES_DB: dbgestor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../database/datos.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
+      - gestor_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - jenkins-ci
+
+volumes:
+  jenkins_home:
+    external: true
+    name: d8f760aca2d94f14fc8d2e56b63e9c36c33aa0db78c53537564899b4ede1eb5a
+  gestor_db_data:
+
+networks:
+  jenkins-ci:
+    external: true

@@ -1,0 +1,886 @@
+{
+  "info": {
+    "name": "Gestor API - Practica 1",
+    "description": "Pruebas de endpoints del backend Ejercicio5MyAPIGestor (Spring Boot + PostgreSQL dbgestor).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Altas",
+      "item": [
+        {
+          "name": "P-01 POST /addUsuario - alta de usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addUsuario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario Prueba P1\",\n  \"correo_electronico\": \"prueba.p1@cbtis75.edu.mx\",\n  \"contrasena\": \"P1-2026\",\n  \"rol\": \"Estudiante\",\n  \"imagen_usuario\": \"/Images/user.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-01 POST /buscarUsuarios - obtener id generado",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarUsuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarUsuarios"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json().find(x => x.correo_electronico === \"prueba.p1@cbtis75.edu.mx\");",
+                  "pm.test(\"El usuario nuevo aparece en la lista\", () => pm.expect(u).to.be.an(\"object\"));",
+                  "pm.test(\"El id viene de la columna identity (mayor a 196)\", () => pm.expect(u.id_usuario).to.be.above(196));",
+                  "pm.environment.set(\"usuarioId\", u.id_usuario);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-03 POST /addProyecto - alta de proyecto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addProyecto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addProyecto"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Proyecto Prueba P1\",\n  \"descripcion\": \"Proyecto creado durante la practica 1\",\n  \"fecha_inicio\": \"2026-10-17\",\n  \"fecha_finalizacion\": \"2026-11-30\",\n  \"estado_proyecto\": \"En proceso\",\n  \"fondo\": \"/Images/animacion1.gif\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-03 POST /buscarProyectos - obtener id generado",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarProyectos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarProyectos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json().find(x => x.nombre === \"Proyecto Prueba P1\");",
+                  "pm.test(\"El proyecto nuevo aparece en la lista\", () => pm.expect(p).to.be.an(\"object\"));",
+                  "pm.environment.set(\"proyectoId\", p.id_proyecto);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-08 POST /addTareas - alta de tarea en el proyecto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addTareas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addTareas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tarea Prueba P1\",\n  \"descripcion\": \"Validar endpoints con Postman\",\n  \"fecha_vencimiento\": \"2026-10-31\",\n  \"lista\": \"Pendientes\",\n  \"estado\": \"warning\",\n  \"id_proyecto\": {{proyectoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Consultas y validaciones",
+      "item": [
+        {
+          "name": "P-02 GET /buscarUsuario - id existente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarUsuario?id={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarUsuario"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"Devuelve el usuario solicitado\", () => {",
+                  "    pm.expect(u.id_usuario).to.eql(Number(pm.environment.get(\"usuarioId\")));",
+                  "    pm.expect(u.correo_electronico).to.eql(\"prueba.p1@cbtis75.edu.mx\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-04 GET /buscarProyecto - id existente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarProyecto?id_proyecto=197",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarProyecto"
+              ],
+              "query": [
+                {
+                  "key": "id_proyecto",
+                  "value": "197"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Devuelve el proyecto My API Rest\", () => pm.expect(pm.response.json().nombre).to.eql(\"My API Rest\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-05 GET /buscarUsuario - id no numerico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarUsuario?id=abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarUsuario"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "abc"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Respuesta de error de Spring\", () => pm.expect(pm.response.json().error).to.eql(\"Bad Request\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-06 GET /buscarUsuario - id inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarUsuario?id=99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarUsuario"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "99999"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-07 POST /getUsuarioLogin - credenciales correctas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/getUsuarioLogin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getUsuarioLogin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo_electronico\": \"prueba.p1@cbtis75.edu.mx\",\n  \"contrasena\": \"P1-2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Devuelve los datos del usuario\", () => pm.expect(pm.response.json().nombre).to.eql(\"Usuario Prueba P1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-07 POST /getUsuarioLogin - contrasena incorrecta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/getUsuarioLogin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getUsuarioLogin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo_electronico\": \"prueba.p1@cbtis75.edu.mx\",\n  \"contrasena\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Marca el acceso rechazado con nombre 000\", () => pm.expect(pm.response.json().nombre).to.eql(\"000\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-08 POST /getTarea - tareas del proyecto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/getTarea",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getTarea"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_proyecto\": {{proyectoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json().find(x => x.nombre === \"Tarea Prueba P1\");",
+                  "pm.test(\"La tarea pertenece al proyecto creado\", () => pm.expect(t.id_proyecto).to.eql(Number(pm.environment.get(\"proyectoId\"))));",
+                  "pm.environment.set(\"tareaId\", t.id_tarea);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-09 POST /updateTareas - cambiar estado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/updateTareas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "updateTareas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_tarea\": {{tareaId}},\n  \"nombre\": \"Tarea Prueba P1\",\n  \"descripcion\": \"Validar endpoints con Postman\",\n  \"fecha_vencimiento\": \"2026-10-31\",\n  \"lista\": \"terminado\",\n  \"estado\": \"success\",\n  \"id_proyecto\": {{proyectoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-09 GET /buscarTarea - confirmar actualizacion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarTarea?id_tarea={{tareaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarTarea"
+              ],
+              "query": [
+                {
+                  "key": "id_tarea",
+                  "value": "{{tareaId}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"El estado quedo actualizado\", () => {",
+                  "    pm.expect(pm.response.json().estado).to.eql(\"success\");",
+                  "    pm.expect(pm.response.json().lista).to.eql(\"terminado\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-10 POST /addComentario - comentar la tarea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addComentario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addComentario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": \"Usuario Prueba P1\",\n  \"id_tarea\": {{tareaId}},\n  \"texto_comentario\": \"Pruebas completadas\",\n  \"fecha_hora\": \"2026-10-17 12:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-10 POST /getComentario - comentarios de la tarea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/getComentario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getComentario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_tarea\": {{tareaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json();",
+                  "pm.test(\"Devuelve el comentario registrado\", () => pm.expect(c[0].texto_comentario).to.eql(\"Pruebas completadas\"));",
+                  "pm.environment.set(\"comentarioId\", c[0].id_comentario);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-11 DELETE /deleteUsuario - id inexistente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/deleteUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deleteUsuario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": 99999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde 0 porque no habia nada que eliminar\", () => pm.expect(pm.response.text()).to.eql(\"0\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Bajas y limpieza",
+      "item": [
+        {
+          "name": "P-12 DELETE /deleteComentario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/deleteComentario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deleteComentario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_comentario\": {{comentarioId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-12 DELETE /deleteTareas",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/deleteTareas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deleteTareas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_tarea\": {{tareaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-12 DELETE /deleteProyecto",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/deleteProyecto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deleteProyecto"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_proyecto\": {{proyectoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-12 DELETE /deleteUsuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/deleteUsuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deleteUsuario"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": {{usuarioId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Codigo HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La API responde 1 (operacion exitosa)\", () => pm.expect(pm.response.text()).to.eql(\"1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "P-12 GET /buscarUsuario - confirmar eliminacion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buscarUsuario?id={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "buscarUsuario"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El usuario eliminado ya no existe (404)\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
