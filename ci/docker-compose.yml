@@ -8,6 +8,7 @@ services:
     build: ./jenkins
     image: gestor-jenkins:jdk21
     container_name: jenkins
+    restart: unless-stopped
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -19,6 +20,7 @@ services:
   sonarqube:
     image: sonarqube:26.10.0.133078-community
     container_name: sonarqube
+    restart: unless-stopped
     environment:
       # Limites de memoria para que SonarQube quepa junto a Jenkins en equipos con poca RAM.
       SONAR_SEARCH_JAVAOPTS: "-Xms384m -Xmx384m"
@@ -36,6 +38,7 @@ services:
   gestor-db:
     image: postgres:16
     container_name: gestor-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: dbgestor
       POSTGRES_USER: postgres
