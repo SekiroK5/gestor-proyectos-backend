@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,21 +12,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mx.cbtis.gestor.dto.UsuarioDto;
 import com.mx.cbtis.gestor.modelo.Usuario;
 import com.mx.cbtis.gestor.repository.UsuarioRepository;
 
 @RestController
 public class UsuarioController {
 	
-	@Autowired
-	UsuarioRepository usuariotable;
+	private final UsuarioRepository usuariotable;
+	
+	public UsuarioController(UsuarioRepository usuariotable) {
+		this.usuariotable = usuariotable;
+	}
 	
 	@PostMapping("/getUsuarioLogin")
-	public Usuario getUsuarioLogin(@RequestBody Usuario userParam) {
+	public Usuario getUsuarioLogin(@RequestBody UsuarioDto userParam) {
 		
 		Optional<Usuario> optionaluser = usuariotable.findByCorreoPass(
-				userParam.getCorreo_electronico(),
-				userParam.getContrasena());
+				userParam.correo_electronico(),
+				userParam.contrasena());
 		
 		Usuario user = new Usuario();
 		
@@ -52,32 +55,22 @@ public class UsuarioController {
 	}
 	
 	@PostMapping("/addUsuario")
-	public int addUsuario(@RequestBody Usuario usuario) {
-		int flag = 0;
-		if(!usuario.equals(null)) {
-			usuariotable.save(usuario);
-			flag = 1;
-		}
-		
-		return flag;
+	public int addUsuario(@RequestBody UsuarioDto usuario) {
+		usuariotable.save(usuario.toEntity());
+		return 1;
 	}
 	
 	@PostMapping("/updateUsuario")
-	public int updateUsuario(@RequestBody Usuario usuario) {
-		int flag = 0;
-		if(!usuario.equals(null)) {
-			usuariotable.save(usuario);
-			flag = 1;
-		}
-		
-		return flag;
+	public int updateUsuario(@RequestBody UsuarioDto usuario) {
+		usuariotable.save(usuario.toEntity());
+		return 1;
 	}
 	
 	@DeleteMapping("/deleteUsuario")
-	public int deleteUsuario(@RequestBody Usuario usuario) {
+	public int deleteUsuario(@RequestBody UsuarioDto usuario) {
 		int flag = 0;
-		if(usuario.getId_usuario() != null && usuariotable.existsById(usuario.getId_usuario())) {
-			usuariotable.delete(usuario);
+		if(usuario.id_usuario() != null && usuariotable.existsById(usuario.id_usuario())) {
+			usuariotable.deleteById(usuario.id_usuario());
 			flag = 1;
 		}
 		

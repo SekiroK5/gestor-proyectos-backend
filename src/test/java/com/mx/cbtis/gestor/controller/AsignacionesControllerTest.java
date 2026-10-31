@@ -92,7 +92,7 @@ class AsignacionesControllerTest {
 		mvc.perform(delete("/deleteAsignacion").contentType(MediaType.APPLICATION_JSON).content("{\"id_asignacion\":21}"))
 			.andExpect(content().string("1"));
 
-		verify(repository).delete(any(Asignaciones.class));
+		verify(repository).deleteById(21);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ class AsignacionesControllerTest {
 		mvc.perform(delete("/deleteAsignacion").contentType(MediaType.APPLICATION_JSON).content("{\"id_asignacion\":99999}"))
 			.andExpect(content().string("0"));
 
-		verify(repository, never()).delete(any(Asignaciones.class));
+		verify(repository, never()).deleteById(any());
 	}
 
 	@Test

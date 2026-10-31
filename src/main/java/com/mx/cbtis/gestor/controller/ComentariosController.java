@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,19 +12,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mx.cbtis.gestor.dto.ComentariosDto;
 import com.mx.cbtis.gestor.modelo.Comentarios;
 import com.mx.cbtis.gestor.repository.ComentariosRepository;
 
 @RestController
 public class ComentariosController {
 	
-	@Autowired
-	ComentariosRepository comentariostable;
+	private final ComentariosRepository comentariostable;
+	
+	public ComentariosController(ComentariosRepository comentariostable) {
+		this.comentariostable = comentariostable;
+	}
 	
 	@PostMapping("/getComentario")
 
-	public List<Comentarios> getComentario(@RequestBody Comentarios idComentario){
-		List<Comentarios> listaComentarios = comentariostable.findByTarea(idComentario.getId_tarea());
+	public List<Comentarios> getComentario(@RequestBody ComentariosDto idComentario){
+		List<Comentarios> listaComentarios = comentariostable.findByTarea(idComentario.id_tarea());
 		return listaComentarios;
 	}
 	
@@ -41,35 +44,25 @@ public class ComentariosController {
 	}
 	
 	@PostMapping("/addComentario")
-	public int addComentario(@RequestBody Comentarios comentario) {
+	public int addComentario(@RequestBody ComentariosDto comentario) {
 		
-		int flag = 0;
-		if(!comentario.equals(null)) {
-			comentariostable.save(comentario);
-			flag = 1;
-		}
-		
-		return flag;
+		comentariostable.save(comentario.toEntity());
+		return 1;
 	}
 	
 	@PostMapping("/updateComentario")
-	public int updateComentario(@RequestBody Comentarios comentario) {
+	public int updateComentario(@RequestBody ComentariosDto comentario) {
 		
-		int flag = 0;
-		if(!comentario.equals(null)) {
-			comentariostable.save(comentario);
-			flag = 1;
-		}
-		
-		return flag;
+		comentariostable.save(comentario.toEntity());
+		return 1;
 	}
 	
 	@DeleteMapping("/deleteComentario")
-	public int deleteComentario(@RequestBody Comentarios comentario) {
+	public int deleteComentario(@RequestBody ComentariosDto comentario) {
 		
 		int flag = 0;
-		if(comentario.getId_comentario() != null && comentariostable.existsById(comentario.getId_comentario())) {
-			comentariostable.delete(comentario);
+		if(comentario.id_comentario() != null && comentariostable.existsById(comentario.id_comentario())) {
+			comentariostable.deleteById(comentario.id_comentario());
 			flag = 1;
 		}
 		

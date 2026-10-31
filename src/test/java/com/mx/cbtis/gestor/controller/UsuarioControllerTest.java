@@ -92,7 +92,7 @@ class UsuarioControllerTest {
 		mvc.perform(delete("/deleteUsuario").contentType(MediaType.APPLICATION_JSON).content("{\"id_usuario\":131}"))
 			.andExpect(content().string("1"));
 
-		verify(repository).delete(any(Usuario.class));
+		verify(repository).deleteById(131);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ class UsuarioControllerTest {
 		mvc.perform(delete("/deleteUsuario").contentType(MediaType.APPLICATION_JSON).content("{\"id_usuario\":99999}"))
 			.andExpect(content().string("0"));
 
-		verify(repository, never()).delete(any(Usuario.class));
+		verify(repository, never()).deleteById(any());
 	}
 
 	@Test

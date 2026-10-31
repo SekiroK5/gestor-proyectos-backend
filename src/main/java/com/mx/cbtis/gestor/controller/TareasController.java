@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,19 +12,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mx.cbtis.gestor.dto.TareasDto;
 import com.mx.cbtis.gestor.modelo.Tareas;
-import com.mx.cbtis.gestor.modelo.Usuario;
 import com.mx.cbtis.gestor.repository.TareasRepository;
 
 @RestController
 public class TareasController {
 	
-	@Autowired
-	TareasRepository tareastable;
+	private final TareasRepository tareastable;
+	
+	public TareasController(TareasRepository tareastable) {
+		this.tareastable = tareastable;
+	}
 	
 	@PostMapping("/getTarea")
-	public List<Tareas> getTarea(@RequestBody Tareas id_proyecto) {
-		List<Tareas> listaTareas = tareastable.findByIdProyecto(id_proyecto.getId_proyecto());
+	public List<Tareas> getTarea(@RequestBody TareasDto id_proyecto) {
+		List<Tareas> listaTareas = tareastable.findByIdProyecto(id_proyecto.id_proyecto());
 		return listaTareas;
 	}
 	
@@ -41,35 +43,25 @@ public class TareasController {
 	}
 	
 	@PostMapping("/addTareas")
-	public int addTareas(@RequestBody Tareas tareas) {
+	public int addTareas(@RequestBody TareasDto tareas) {
 		
-		int flag = 0;
-		if(!tareas.equals(null)) {
-			tareastable.save(tareas);
-			flag = 1;
-		}
-		
-		return flag;
+		tareastable.save(tareas.toEntity());
+		return 1;
 	}
 	
 	@PostMapping("/updateTareas")
-	public int updateTareas(@RequestBody Tareas tareas) {
+	public int updateTareas(@RequestBody TareasDto tareas) {
 		
-		int flag = 0;
-		if(!tareas.equals(null)) {
-			tareastable.save(tareas);
-			flag = 1;
-		}
-		
-		return flag;
+		tareastable.save(tareas.toEntity());
+		return 1;
 	}
 	
 	@DeleteMapping("/deleteTareas")
-	public int deleteTareas(@RequestBody Tareas tareas) {
+	public int deleteTareas(@RequestBody TareasDto tareas) {
 		
 		int flag = 0;
-		if(tareas.getId_tarea() != null && tareastable.existsById(tareas.getId_tarea())) {
-			tareastable.delete(tareas);
+		if(tareas.id_tarea() != null && tareastable.existsById(tareas.id_tarea())) {
+			tareastable.deleteById(tareas.id_tarea());
 			flag = 1;
 		}
 		
