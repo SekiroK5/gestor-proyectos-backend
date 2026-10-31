@@ -38,7 +38,7 @@ pipeline {
 
         stage('Analisis de configuracion (Trivy)') {
             steps {
-                sh 'trivy config --format table --output trivy-config.txt ci'
+                sh 'trivy config --skip-version-check --format table --output trivy-config.txt ci'
                 sh 'cat trivy-config.txt'
             }
             post {

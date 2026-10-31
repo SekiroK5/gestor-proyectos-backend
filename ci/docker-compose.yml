@@ -19,6 +19,11 @@ services:
   sonarqube:
     image: sonarqube:26.10.0.133078-community
     container_name: sonarqube
+    environment:
+      # Limites de memoria para que SonarQube quepa junto a Jenkins en equipos con poca RAM.
+      SONAR_SEARCH_JAVAOPTS: "-Xms384m -Xmx384m"
+      SONAR_WEB_JAVAOPTS: "-Xmx384m"
+      SONAR_CE_JAVAOPTS: "-Xmx512m"
     ports:
       - "9000:9000"
     volumes:
