@@ -61,6 +61,49 @@ BEGIN
     END LOOP;
 END $$;
 
+-- 5. Deben existir las cuatro llaves foraneas del esquema.
+DO $$
+DECLARE llaves INTEGER;
+BEGIN
+    SELECT count(*) INTO llaves
+    FROM pg_constraint AS k
+    WHERE k.contype = 'f'
+      AND k.conname IN ('fk_tareas_proyectos', 'fk_comentarios_tareas', 'fk_asignaciones_usuario', 'fk_asignaciones_tareas');
+    IF llaves < 4 THEN
+        RAISE EXCEPTION 'Faltan llaves foraneas: solo hay % de 4', llaves;
+    END IF;
+END $$;
+
+-- 6. Ninguna contrasena puede estar en texto plano (deben ser hashes BCrypt).
+DO $$
+DECLARE planas INTEGER;
+BEGIN
+    SELECT count(*) INTO planas FROM usuario AS u
+    WHERE u.contrasena !~ '^\$2[aby]\$[0-9]{2}\$.{53}$';
+    IF planas > 0 THEN
+        RAISE EXCEPTION 'Hay % contrasenas sin hash BCrypt', planas;
+    END IF;
+END $$;
+
+-- 7. La base debe rechazar una contrasena en texto plano y un correo repetido.
+DO $$
+BEGIN
+    BEGIN
+        INSERT INTO usuario (nombre, correo_electronico, contrasena, rol)
+        VALUES ('Prueba', 'prueba@gestor.local', '12345', 'Estudiante');
+        RAISE EXCEPTION 'La base acepto una contrasena en texto plano';
+    EXCEPTION WHEN check_violation THEN
+        RAISE NOTICE 'OK: contrasena en texto plano rechazada';
+    END;
+    BEGIN
+        INSERT INTO usuario (nombre, correo_electronico, contrasena, rol)
+        SELECT 'Copia', u.correo_electronico, u.contrasena, u.rol FROM usuario AS u LIMIT 1;
+        RAISE EXCEPTION 'La base acepto un correo repetido';
+    EXCEPTION WHEN unique_violation THEN
+        RAISE NOTICE 'OK: correo repetido rechazado';
+    END;
+END $$;
+
 -- Resumen para el log del pipeline.
 SELECT
     'usuario' AS tabla,

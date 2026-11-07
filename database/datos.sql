@@ -1,8 +1,9 @@
 -- Datos de ejemplo (ficticios) para desarrollo y para el pipeline de base de datos.
+-- Las contrasenas son hashes BCrypt (costo 12) de demo123 y docente123.
 
 INSERT INTO usuario (id_usuario, nombre, correo_electronico, contrasena, rol, imagen_usuario) VALUES
-(1, 'Usuario Demo', 'demo@gestor.local', 'demo123', 'Estudiante', '#70FAB7'),
-(2, 'Docente Demo', 'docente@gestor.local', 'docente123', 'Docente', '#54EA01');
+(1, 'Usuario Demo', 'demo@gestor.local', '$2a$12$wf/37uehFEqpuHQdrbJSm.Ek97IBIUar0vdT.xd5rqt5HPAOeGg4m', 'Estudiante', '#70FAB7'),
+(2, 'Docente Demo', 'docente@gestor.local', '$2a$12$8tFVIxSoe0Un6W00TpYaxuRNxEtXiO.cwrDsrtiMm2Ye6Icqi8xtK', 'Docente', '#54EA01');
 
 INSERT INTO proyectos (id_proyecto, nombre, descripcion, fecha_inicio, fecha_finalizacion, estado_proyecto, fondo) VALUES
 (1, 'My API Rest', 'API REST con al menos 5 tablas', '2026-09-01', '2026-11-30', 'En proceso', '/Images/animacion1.gif');
